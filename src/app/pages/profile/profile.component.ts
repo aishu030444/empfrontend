@@ -1,12 +1,11 @@
 import { Component, OnInit } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { CommonModule } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 
 @Component({
   selector: 'app-employee-profile',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule],
+  imports: [CommonModule],
   templateUrl: './profile.component.html',
   styleUrls: ['./profile.component.scss'],
 })
@@ -29,6 +28,7 @@ export class ProfileComponent implements OnInit {
   fetchEmployeeProfile(pernr: string): void {
     this.isLoading = true;
     this.error = '';
+    
     this.http.post<any>('http://localhost:3030/profile', { PERNR: pernr }).subscribe({
       next: (response) => {
         this.isLoading = false;
@@ -48,11 +48,11 @@ export class ProfileComponent implements OnInit {
 
   getGenderAvatar(gender: string): string {
     if (gender === 'M') {
-      return 'https://cdn-icons-png.flaticon.com/512/236/236831.png';
+      return 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&h=150&fit=crop&crop=face&auto=format';
     } else if (gender === 'F') {
-      return 'https://cdn-icons-png.flaticon.com/512/236/236832.png';
+      return 'https://images.unsplash.com/photo-1494790108755-2616b612b786?w=150&h=150&fit=crop&crop=face&auto=format';
     } else {
-      return 'https://cdn-icons-png.flaticon.com/512/847/847969.png';
+      return 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=150&h=150&fit=crop&crop=face&auto=format';
     }
   }
 
@@ -65,10 +65,41 @@ export class ProfileComponent implements OnInit {
   }
 
   formatDate(rawDate: string): string {
-    if (!rawDate || rawDate.length !== 8) return rawDate;
+    if (!rawDate || rawDate.length !== 8) return rawDate || 'N/A';
     const yyyy = rawDate.substring(0, 4);
     const mm = rawDate.substring(4, 6);
     const dd = rawDate.substring(6, 8);
     return `${dd}-${mm}-${yyyy}`;
+  }
+
+  getStatusClass(status: string): string {
+    return status === '1' ? 'active' : 'inactive';
+  }
+
+  getStatusBadgeClass(status: string): string {
+    return status === '1' ? 'active' : 'inactive';
+  }
+
+  calculateTenure(startDate: string): string {
+    if (!startDate || startDate.length !== 8) return 'N/A';
+    
+    const yyyy = parseInt(startDate.substring(0, 4));
+    const mm = parseInt(startDate.substring(4, 6)) - 1; // Month is 0-indexed
+    const dd = parseInt(startDate.substring(6, 8));
+    
+    const start = new Date(yyyy, mm, dd);
+    const now = new Date();
+    const diffTime = Math.abs(now.getTime() - start.getTime());
+    const diffYears = Math.floor(diffTime / (1000 * 60 * 60 * 24 * 365.25));
+    
+    return diffYears.toString();
+  }
+
+  getCurrentDate(): string {
+    return new Date().toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
   }
 }

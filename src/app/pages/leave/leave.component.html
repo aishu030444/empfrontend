@@ -1,93 +1,207 @@
-<div class="container">
+<div class="leave-container">
+  <!-- Header Section with KPIs -->
+  <div class="header-section">
+    <div class="page-title">
+      <h1>Leave Management</h1>
+      <p>Track your leave balance, history, and analytics</p>
+    </div>
+    
+    <!-- KPI Cards -->
+    <div class="kpi-grid" *ngIf="leaveAnalytics">
+      <div class="kpi-card total-leaves">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>{{ leaveAnalytics.totalLeaves }}</h3>
+          <p>Total Leaves Taken</p>
+          <span class="kpi-trend positive">+{{ leaveAnalytics.thisMonthLeaves }} this month</span>
+        </div>
+      </div>
+
+      <div class="kpi-card available-leaves">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+            <polyline points="22,4 12,14.01 9,11.01"></polyline>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>{{ leaveAnalytics.availableLeaves }}</h3>
+          <p>Available Leave Days</p>
+          <span class="kpi-trend neutral">{{ leaveAnalytics.totalAllowedLeaves }} total allocated</span>
+        </div>
+      </div>
+
+      <div class="kpi-card pending-requests">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12,6 12,12 16,14"></polyline>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>{{ leaveAnalytics.pendingRequests }}</h3>
+          <p>Pending Requests</p>
+          <span class="kpi-trend warning">Awaiting approval</span>
+        </div>
+      </div>
+
+      <div class="kpi-card leave-utilization">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18"></path>
+            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>{{ leaveAnalytics.utilizationRate }}%</h3>
+          <p>Leave Utilization</p>
+          <span class="kpi-trend" [class.positive]="leaveAnalytics.utilizationRate > 70" 
+                [class.warning]="leaveAnalytics.utilizationRate <= 70">
+            {{ leaveAnalytics.utilizationRate > 70 ? 'Good utilization' : 'Consider planning leave' }}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section" *ngIf="chartData">
+    <div class="chart-container">
+      <div class="chart-card">
+        <h3>Leave Trends (Last 6 Months)</h3>
+        <canvas baseChart
+          [type]="'line'"
+          [data]="chartData.leavesTrend"
+          [options]="chartOptions.line">
+        </canvas>
+      </div>
+      
+      <div class="chart-card">
+        <h3>Leave Types Distribution</h3>
+        <canvas baseChart
+          [type]="'doughnut'"
+          [data]="chartData.leaveTypes"
+          [options]="chartOptions.doughnut">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
   <!-- Loading State -->
-  <mat-card *ngIf="isLoading" class="loading-card">
-    <mat-card-content class="loading-container">
-      <mat-spinner diameter="50"></mat-spinner>
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
       <p>Loading your leave records...</p>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 
   <!-- Error State -->
-  <mat-card *ngIf="error" class="error-card">
-    <mat-card-content class="error-container">
-      <mat-icon color="warn">error_outline</mat-icon>
-      <p>{{ error }}</p>
-      <button mat-raised-button color="primary" (click)="ngOnInit()">
-        <mat-icon>refresh</mat-icon> Try Again
-      </button>
-    </mat-card-content>
-  </mat-card>
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Unable to load leave data</h3>
+    <p>{{ error }}</p>
+    <button class="retry-button" (click)="ngOnInit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23,4 23,10 17,10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      Try Again
+    </button>
+  </div>
 
-  <!-- Data Display -->
-  <mat-card *ngIf="leaves.length > 0 && !isLoading" class="leave-card">
-    <mat-card-header>
-      <mat-card-title>Your Leave History</mat-card-title>
-      <mat-card-subtitle>Showing {{ leaves.length }} records</mat-card-subtitle>
-    </mat-card-header>
-    
-    <mat-card-content>
-      <table mat-table [dataSource]="leaves" class="leave-table">
-        <!-- Leave Type Column -->
-        <ng-container matColumnDef="leaveType">
-          <th mat-header-cell *matHeaderCellDef>Leave Type</th>
-          <td mat-cell *matCellDef="let leave" [matTooltip]="'Code: ' + leave.AWART">
-            {{ leave.ATEXT || 'Unknown' }}
-          </td>
-        </ng-container>
+  <!-- Data Table -->
+  <div *ngIf="leaves.length > 0 && !isLoading" class="table-section">
+    <div class="table-header">
+      <h2>Leave History</h2>
+      <div class="table-controls">
+        <div class="search-box">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <path d="m21 21-4.35-4.35"></path>
+          </svg>
+          <input type="text" placeholder="Search leaves..." [(ngModel)]="searchTerm" (input)="filterLeaves()">
+        </div>
+        <div class="filter-dropdown">
+          <select [(ngModel)]="selectedFilter" (change)="filterLeaves()">
+            <option value="">All Types</option>
+            <option value="Annual">Annual Leave</option>
+            <option value="Sick">Sick Leave</option>
+            <option value="Personal">Personal Leave</option>
+          </select>
+        </div>
+      </div>
+    </div>
 
-        <!-- Period Column -->
-        <ng-container matColumnDef="period">
-          <th mat-header-cell *matHeaderCellDef>Period</th>
-          <td mat-cell *matCellDef="let leave">
-            {{ leave.BEGDA }} to {{ leave.ENDDA }}
-          </td>
-        </ng-container>
-
-        <!-- Duration Column -->
-        <ng-container matColumnDef="duration">
-          <th mat-header-cell *matHeaderCellDef>Days</th>
-          <td mat-cell *matCellDef="let leave">
-            {{ leave.ABS_DAYS }}
-          </td>
-        </ng-container>
-
-        <!-- Status Column -->
-        <ng-container matColumnDef="status">
-          <th mat-header-cell *matHeaderCellDef>Status</th>
-          <td mat-cell *matCellDef="let leave">
-            <mat-chip [color]="getStatusColor(leave.STATUS)" selected>
-              {{ leave.STATUS }}
-            </mat-chip>
-          </td>
-        </ng-container>
-
-        <!-- Approver Column -->
-        <ng-container matColumnDef="approver">
-          <th mat-header-cell *matHeaderCellDef>Approver</th>
-          <td mat-cell *matCellDef="let leave" [matTooltip]="'User ID: ' + leave.UNAME">
-            {{ leave.ENAME || leave.UNAME || 'System' }}
-          </td>
-        </ng-container>
-
-        <!-- Request Date Column -->
-        <ng-container matColumnDef="requestDate">
-          <th mat-header-cell *matHeaderCellDef>Request Date</th>
-          <td mat-cell *matCellDef="let leave">
-            {{ leave.AEDTM }}
-          </td>
-        </ng-container>
-
-        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+    <div class="table-container">
+      <table class="leave-table">
+        <thead>
+          <tr>
+            <th>Leave Type</th>
+            <th>Period</th>
+            <th>Duration</th>
+            <th>Status</th>
+            <th>Approver</th>
+            <th>Request Date</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let leave of filteredLeaves" class="table-row">
+            <td>
+              <div class="leave-type-cell">
+                <div class="leave-type-icon" [class]="getLeaveTypeClass(leave.ATEXT)">
+                  {{ getLeaveTypeIcon(leave.ATEXT) }}
+                </div>
+                <div class="leave-type-info">
+                  <span class="leave-type-name">{{ leave.ATEXT || 'Unknown' }}</span>
+                  <span class="leave-type-code">{{ leave.AWART }}</span>
+                </div>
+              </div>
+            </td>
+            <td>
+              <div class="period-cell">
+                <span class="period-dates">{{ leave.BEGDA }} - {{ leave.ENDDA }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="duration-cell">
+                <span class="duration-days">{{ leave.ABS_DAYS }}</span>
+                <span class="duration-label">days</span>
+              </div>
+            </td>
+            <td>
+              <div class="status-cell">
+                <span class="status-badge" [class]="getStatusClass(leave.STATUS)">
+                  {{ leave.STATUS }}
+                </span>
+              </div>
+            </td>
+            <td>
+              <div class="approver-cell">
+                <span class="approver-name">{{ leave.ENAME || leave.UNAME || 'System' }}</span>
+              </div>
+            </td>
+            <td>
+              <div class="request-date-cell">
+                <span class="request-date">{{ leave.AEDTM }}</span>
+              </div>
+            </td>
+          </tr>
+        </tbody>
       </table>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 
   <!-- Empty State -->
-  <mat-card *ngIf="leaves.length === 0 && !isLoading && !error" class="empty-card">
-    <mat-card-content>
-      <mat-icon>event_busy</mat-icon>
-      <p>No leave records found for your account.</p>
-    </mat-card-content>
-  </mat-card>
+  <div *ngIf="leaves.length === 0 && !isLoading && !error" class="empty-state">
+    <div class="empty-icon">📅</div>
+    <h3>No leave records found</h3>
+    <p>You haven't taken any leaves yet or no records are available for your account.</p>
+  </div>
 </div>

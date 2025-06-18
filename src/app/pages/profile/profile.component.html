@@ -1,76 +1,249 @@
 <div class="profile-container">
-  <h2 class="page-title">Employee Profile</h2>
+  <!-- Header Section -->
+  <div class="header-section">
+    <div class="page-title">
+      <h1>Employee Profile</h1>
+      <p>View and manage your personal and professional information</p>
+    </div>
+  </div>
 
-  <div class="employee-profile-wrapper">
-    <ng-container *ngIf="employeeProfile; else loadingOrError">
-      <div class="profile-card">
-        <div class="profile-header">
+  <!-- Loading State -->
+  <div *ngIf="isLoading" class="loading-container">
+    <div class="loading-spinner">
+      <div class="spinner"></div>
+      <p>Loading your profile...</p>
+    </div>
+  </div>
+
+  <!-- Error State -->
+  <div *ngIf="error" class="error-container">
+    <div class="error-icon">⚠️</div>
+    <h3>Unable to load profile</h3>
+    <p>{{ error }}</p>
+    <button class="retry-button" (click)="ngOnInit()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <polyline points="23,4 23,10 17,10"></polyline>
+        <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+      </svg>
+      Try Again
+    </button>
+  </div>
+
+  <!-- Profile Content -->
+  <div *ngIf="employeeProfile && !isLoading" class="profile-content">
+    <!-- Profile Header Card -->
+    <div class="profile-header-card">
+      <div class="profile-avatar-section">
+        <div class="avatar-container">
           <img
             [src]="getGenderAvatar(employeeProfile.GESCH)"
             alt="Profile"
             class="avatar"
           />
-
-          <div class="profile-summary">
-            <h3 class="name">{{ employeeProfile.ENAME }}</h3>
-            <div class="meta-info">
-              <span>Employee ID: {{ employeeProfile.PERNR }}</span>
-              <span
-                class="status"
-                [ngClass]="{
-                  'active': employeeProfile.PERSG === '1',
-                  'inactive': employeeProfile.PERSG !== '1'
-                }"
-              >
-                {{ employeeProfile.PERSG === '1' ? 'Active' : 'Inactive' }}
-              </span>
-            </div>
+          <div class="avatar-badge" [class]="getStatusBadgeClass(employeeProfile.PERSG)">
+            {{ employeeProfile.PERSG === '1' ? '✓' : '⏸' }}
           </div>
         </div>
-
-        <div class="profile-sections">
-          <section class="section">
-            <h4>📝 Personal Information</h4>
-            <div class="info-row"><strong>Full Name:</strong> {{ employeeProfile.VORNA }} {{ employeeProfile.NACHN }}</div>
-            <div class="info-row"><strong>Gender:</strong> {{ formatGender(employeeProfile.GESCH) }}</div>
-            <div class="info-row"><strong>Date of Birth:</strong> {{ formatDate(employeeProfile.GBDAT) }}</div>
-            <div class="info-row"><strong>Nationality:</strong> {{ employeeProfile.NATIO }}</div>
-            <div class="info-row"><strong>Language:</strong> {{ employeeProfile.SPRSL }}</div>
-          </section>
-
-          <section class="section">
-            <h4>💼 Employment Details</h4>
-            <div class="info-row"><strong>Employee Group:</strong> {{ employeeProfile.PERSG }}</div>
-            <div class="info-row"><strong>Employee Subgroup:</strong> {{ employeeProfile.PERSK }}</div>
-            <div class="info-row"><strong>Position:</strong> {{ employeeProfile.STELL }}</div>
-            <div class="info-row"><strong>Organizational Unit:</strong> {{ employeeProfile.ORGEH }}</div>
-            <div class="info-row"><strong>Start Date:</strong> {{ formatDate(employeeProfile.BEGDA) }}</div>
-          </section>
-
-          <section class="section">
-            <h4>📍 Contact Information</h4>
-            <div class="info-row"><strong>Location:</strong> {{ employeeProfile.LOCAT }}</div>
-            <div class="info-row"><strong>City:</strong> {{ employeeProfile.ORT01 }}</div>
-            <div class="info-row"><strong>Postal Code:</strong> {{ employeeProfile.PSTLZ }}</div>
-            <div class="info-row"><strong>Country:</strong> {{ employeeProfile.LAND1 }}</div>
-          </section>
-
-          <section class="section">
-            <h4>🔐 System Information</h4>
-            <div class="info-row"><strong>User Type:</strong> {{ employeeProfile.USRTY }}</div>
-            <div class="info-row"><strong>User ID:</strong> {{ employeeProfile.USRID_LONG }}</div>
-          </section>
+        <div class="profile-basic-info">
+          <h2 class="employee-name">{{ employeeProfile.ENAME }}</h2>
+          <p class="employee-id">Employee ID: {{ employeeProfile.PERNR }}</p>
+          <div class="status-badges">
+            <span class="status-badge" [class]="getStatusClass(employeeProfile.PERSG)">
+              {{ employeeProfile.PERSG === '1' ? 'Active' : 'Inactive' }}
+            </span>
+            <span class="department-badge">{{ employeeProfile.ORGEH || 'N/A' }}</span>
+          </div>
         </div>
       </div>
-    </ng-container>
-
-    <!-- Loading/Error Template -->
-    <ng-template #loadingOrError>
-      <div *ngIf="isLoading" class="status-message">
-        <mat-spinner diameter="40"></mat-spinner>
-        Loading employee profile...
+      
+      <div class="profile-stats">
+        <div class="stat-item">
+          <div class="stat-icon">📅</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ calculateTenure(employeeProfile.BEGDA) }}</span>
+            <span class="stat-label">Years of Service</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">🏢</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ employeeProfile.STELL || 'N/A' }}</span>
+            <span class="stat-label">Position</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">🌍</div>
+          <div class="stat-info">
+            <span class="stat-value">{{ employeeProfile.ORT01 || 'N/A' }}</span>
+            <span class="stat-label">Location</span>
+          </div>
+        </div>
       </div>
-      <div *ngIf="error" class="error-message">{{ error }}</div>
-    </ng-template>
+    </div>
+
+    <!-- Information Cards Grid -->
+    <div class="info-cards-grid">
+      <!-- Personal Information Card -->
+      <div class="info-card personal-info">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <h3>Personal Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">Full Name</span>
+            <span class="info-value">{{ employeeProfile.VORNA }} {{ employeeProfile.NACHN }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Gender</span>
+            <span class="info-value">{{ formatGender(employeeProfile.GESCH) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Date of Birth</span>
+            <span class="info-value">{{ formatDate(employeeProfile.GBDAT) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Nationality</span>
+            <span class="info-value">{{ employeeProfile.NATIO || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Language</span>
+            <span class="info-value">{{ employeeProfile.SPRSL || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Employment Details Card -->
+      <div class="info-card employment-info">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <h3>Employment Details</h3>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">Employee Group</span>
+            <span class="info-value">{{ employeeProfile.PERSG || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Employee Subgroup</span>
+            <span class="info-value">{{ employeeProfile.PERSK || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Position</span>
+            <span class="info-value">{{ employeeProfile.STELL || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Organizational Unit</span>
+            <span class="info-value">{{ employeeProfile.ORGEH || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Start Date</span>
+            <span class="info-value">{{ formatDate(employeeProfile.BEGDA) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contact Information Card -->
+      <div class="info-card contact-info">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+              <circle cx="12" cy="10" r="3"></circle>
+            </svg>
+          </div>
+          <h3>Contact Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">Location</span>
+            <span class="info-value">{{ employeeProfile.LOCAT || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">City</span>
+            <span class="info-value">{{ employeeProfile.ORT01 || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Postal Code</span>
+            <span class="info-value">{{ employeeProfile.PSTLZ || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Country</span>
+            <span class="info-value">{{ employeeProfile.LAND1 || 'N/A' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- System Information Card -->
+      <div class="info-card system-info">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+              <line x1="8" y1="21" x2="16" y2="21"></line>
+              <line x1="12" y1="17" x2="12" y2="21"></line>
+            </svg>
+          </div>
+          <h3>System Information</h3>
+        </div>
+        <div class="card-content">
+          <div class="info-row">
+            <span class="info-label">User Type</span>
+            <span class="info-value">{{ employeeProfile.USRTY || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">User ID</span>
+            <span class="info-value">{{ employeeProfile.USRID_LONG || 'N/A' }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Last Updated</span>
+            <span class="info-value">{{ getCurrentDate() }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="quick-actions-section">
+      <h3>Quick Actions</h3>
+      <div class="actions-grid">
+        <button class="action-button edit-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Edit Profile
+        </button>
+        
+        <button class="action-button change-password">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <circle cx="12" cy="16" r="1"></circle>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+          Change Password
+        </button>
+        
+        <button class="action-button download-profile">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7,10 12,15 17,10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+          Download Profile
+        </button>
+      </div>
+    </div>
   </div>
 </div>

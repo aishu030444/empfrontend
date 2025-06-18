@@ -1,26 +1,168 @@
 <div class="dashboard-container">
-  <h2 class="title">Welcome to Employee Dashboard</h2>
-
-  <div class="card-container">
-    <!-- Leave Request Card -->
-    <div class="dashboard-card" (click)="navigateTo('home/leave')">
-      <img src="assets/leave.jpeg" alt="Leave Request" class="card-image" />
-      <h3>Leave Request</h3>
-      <p>Apply for leave or view your past requests</p>
+  <!-- Hero Section -->
+  <div class="hero-section">
+    <div class="hero-content">
+      <div class="welcome-text">
+        <h1>Welcome Back!</h1>
+        <p>Manage your work life efficiently with our comprehensive employee portal</p>
+      </div>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-icon">📊</div>
+          <div class="stat-info">
+            <span class="stat-number">24/7</span>
+            <span class="stat-label">Access</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">⚡</div>
+          <div class="stat-info">
+            <span class="stat-number">Fast</span>
+            <span class="stat-label">Processing</span>
+          </div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-icon">🔒</div>
+          <div class="stat-info">
+            <span class="stat-number">Secure</span>
+            <span class="stat-label">Platform</span>
+          </div>
+        </div>
+      </div>
     </div>
-
-    <!-- Payment Slip Card -->
-    <div class="dashboard-card" (click)="navigateTo('home/payment')">
-      <img src="assets/Designer.jpeg" alt="Payment Slip" class="card-image" />
-      <h3>Payment Slip</h3>
-      <p>Download and view your monthly salary slips</p>
+    <div class="hero-illustration">
+      <div class="floating-card card-1"></div>
+      <div class="floating-card card-2"></div>
+      <div class="floating-card card-3"></div>
     </div>
+  </div>
 
-    <!-- Profile Card -->
-    <div class="dashboard-card" (click)="navigateTo('home/profile')">
-      <img src="assets/profile.jpeg" alt="Profile" class="card-image" />
-      <h3>Profile</h3>
-      <p>View your personal and work information</p>
+  <!-- Quick Actions -->
+  <div class="quick-actions-section">
+    <h2>Quick Actions</h2>
+    <div class="actions-grid">
+      <!-- Leave Request Card -->
+      <div class="action-card leave-card" (click)="navigateTo('home/leave')">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="card-badge">Leave</div>
+        </div>
+        <div class="card-content">
+          <h3>Leave Request</h3>
+          <p>Apply for leave, check balance, and view request history</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-value">15</span>
+              <span class="stat-label">Days Available</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">3</span>
+              <span class="stat-label">Pending</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="action-text">Manage Leave →</span>
+        </div>
+      </div>
+
+      <!-- Payment Slip Card -->
+      <div class="action-card payment-card" (click)="navigateTo('home/payment')">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+              <line x1="1" y1="10" x2="23" y2="10"></line>
+            </svg>
+          </div>
+          <div class="card-badge">Payroll</div>
+        </div>
+        <div class="card-content">
+          <h3>Payment Slip</h3>
+          <p>Download salary slips, view payment history and tax details</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-value">$5,200</span>
+              <span class="stat-label">Last Payment</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">12</span>
+              <span class="stat-label">Available Slips</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="action-text">View Payslips →</span>
+        </div>
+      </div>
+
+      <!-- Profile Card -->
+      <div class="action-card profile-card" (click)="navigateTo('home/profile')">
+        <div class="card-header">
+          <div class="card-icon">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
+              <circle cx="12" cy="7" r="4"></circle>
+            </svg>
+          </div>
+          <div class="card-badge">Profile</div>
+        </div>
+        <div class="card-content">
+          <h3>My Profile</h3>
+          <p>View and update your personal and professional information</p>
+          <div class="card-stats">
+            <div class="stat">
+              <span class="stat-value">95%</span>
+              <span class="stat-label">Complete</span>
+            </div>
+            <div class="stat">
+              <span class="stat-value">Active</span>
+              <span class="stat-label">Status</span>
+            </div>
+          </div>
+        </div>
+        <div class="card-footer">
+          <span class="action-text">View Profile →</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent Activity -->
+  <div class="recent-activity-section">
+    <h2>Recent Activity</h2>
+    <div class="activity-grid">
+      <div class="activity-item">
+        <div class="activity-icon success">✓</div>
+        <div class="activity-content">
+          <h4>Leave Request Approved</h4>
+          <p>Your vacation request for Dec 25-30 has been approved</p>
+          <span class="activity-time">2 hours ago</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon info">💰</div>
+        <div class="activity-content">
+          <h4>Salary Slip Generated</h4>
+          <p>November 2024 salary slip is now available for download</p>
+          <span class="activity-time">1 day ago</span>
+        </div>
+      </div>
+      <div class="activity-item">
+        <div class="activity-icon warning">📝</div>
+        <div class="activity-content">
+          <h4>Profile Update Required</h4>
+          <p>Please update your emergency contact information</p>
+          <span class="activity-time">3 days ago</span>
+        </div>
+      </div>
     </div>
   </div>
 </div>

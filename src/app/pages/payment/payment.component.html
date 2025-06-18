@@ -1,84 +1,243 @@
-<div class="container">
-  <mat-card>
-    <mat-card-header>
-      <mat-card-title>Payslip</mat-card-title>
-      <mat-card-subtitle>View and download your salary details</mat-card-subtitle>
-    </mat-card-header>
+<div class="payment-container">
+  <!-- Header Section with KPIs -->
+  <div class="header-section">
+    <div class="page-title">
+      <h1>Payment Management</h1>
+      <p>Access your salary information, download payslips, and track payment history</p>
+    </div>
+    
+    <!-- KPI Cards -->
+    <div class="kpi-grid" *ngIf="paymentAnalytics">
+      <div class="kpi-card current-salary">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+            <line x1="1" y1="10" x2="23" y2="10"></line>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>${{ paymentAnalytics.currentSalary | number:'1.0-0' }}</h3>
+          <p>Current Monthly Salary</p>
+          <span class="kpi-trend positive">+{{ paymentAnalytics.salaryIncrease }}% from last year</span>
+        </div>
+      </div>
 
-    <mat-card-content>
-      <form [formGroup]="payslipForm" (ngSubmit)="fetchPayslip()">
+      <div class="kpi-card ytd-earnings">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 3v18h18"></path>
+            <path d="M18.7 8l-5.1 5.2-2.8-2.7L7 14.3"></path>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>${{ paymentAnalytics.ytdEarnings | number:'1.0-0' }}</h3>
+          <p>Year-to-Date Earnings</p>
+          <span class="kpi-trend neutral">{{ paymentAnalytics.monthsWorked }} months worked</span>
+        </div>
+      </div>
+
+      <div class="kpi-card tax-deducted">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M8 12h8"></path>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>${{ paymentAnalytics.totalTaxDeducted | number:'1.0-0' }}</h3>
+          <p>Total Tax Deducted</p>
+          <span class="kpi-trend warning">{{ paymentAnalytics.taxRate }}% effective rate</span>
+        </div>
+      </div>
+
+      <div class="kpi-card net-pay">
+        <div class="kpi-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+          </svg>
+        </div>
+        <div class="kpi-content">
+          <h3>${{ paymentAnalytics.averageNetPay | number:'1.0-0' }}</h3>
+          <p>Average Net Pay</p>
+          <span class="kpi-trend positive">{{ paymentAnalytics.payslipsGenerated }} payslips available</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Charts Section -->
+  <div class="charts-section" *ngIf="chartData">
+    <div class="chart-container">
+      <div class="chart-card">
+        <h3>Salary Trend (Last 12 Months)</h3>
+        <canvas baseChart
+          [type]="'line'"
+          [data]="chartData.salaryTrend"
+          [options]="chartOptions.line">
+        </canvas>
+      </div>
+      
+      <div class="chart-card">
+        <h3>Deductions Breakdown</h3>
+        <canvas baseChart
+          [type]="'doughnut'"
+          [data]="chartData.deductionsBreakdown"
+          [options]="chartOptions.doughnut">
+        </canvas>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payslip Generator Section -->
+  <div class="payslip-section">
+    <div class="section-header">
+      <h2>Generate Payslip</h2>
+      <p>Select month and year to download your salary slip</p>
+    </div>
+
+    <div class="payslip-form-container">
+      <form [formGroup]="payslipForm" (ngSubmit)="fetchPayslip()" class="payslip-form">
         <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Month</mat-label>
-            <mat-select formControlName="month" required>
-              <mat-option *ngFor="let month of months" [value]="month.value">
+          <div class="form-group">
+            <label for="month">Month</label>
+            <select formControlName="month" id="month" required>
+              <option value="" disabled>Select Month</option>
+              <option *ngFor="let month of months" [value]="month.value">
                 {{ month.name }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="payslipForm.get('month')?.hasError('required')">
+              </option>
+            </select>
+            <div *ngIf="payslipForm.get('month')?.hasError('required') && payslipForm.get('month')?.touched" 
+                 class="error-message">
               Month is required
-            </mat-error>
-          </mat-form-field>
+            </div>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Year</mat-label>
-            <mat-select formControlName="year" required>
-              <mat-option *ngFor="let year of years" [value]="year">
+          <div class="form-group">
+            <label for="year">Year</label>
+            <select formControlName="year" id="year" required>
+              <option value="" disabled>Select Year</option>
+              <option *ngFor="let year of years" [value]="year">
                 {{ year }}
-              </mat-option>
-            </mat-select>
-            <mat-error *ngIf="payslipForm.get('year')?.hasError('required')">
+              </option>
+            </select>
+            <div *ngIf="payslipForm.get('year')?.hasError('required') && payslipForm.get('year')?.touched" 
+                 class="error-message">
               Year is required
-            </mat-error>
-          </mat-form-field>
+            </div>
+          </div>
         </div>
 
-        <div class="button-row">
+        <div class="button-group">
           <button 
-            mat-raised-button 
-            color="primary" 
             type="submit"
+            class="primary-button"
             [disabled]="payslipForm.invalid || isLoading">
-            <span *ngIf="!isLoading">Get Payslip</span>
-            <mat-spinner *ngIf="isLoading" diameter="24"></mat-spinner>
+            <span *ngIf="!isLoading" class="button-content">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7,10 12,15 17,10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Generate Payslip
+            </span>
+            <span *ngIf="isLoading" class="loading-content">
+              <div class="spinner"></div>
+              Generating...
+            </span>
           </button>
 
           <button 
-            mat-stroked-button 
-            color="primary" 
             type="button"
+            class="secondary-button"
             (click)="printPayslip()"
             [disabled]="!pdfUrl">
-            <mat-icon>print</mat-icon>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6,9 6,2 18,2 18,9"></polyline>
+              <path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path>
+              <rect x="6" y="14" width="12" height="8"></rect>
+            </svg>
             Print
           </button>
 
           <button 
-            mat-stroked-button 
-            color="primary" 
             type="button"
+            class="secondary-button"
             (click)="mailPayslip()"
             [disabled]="!pdfUrl">
-            <mat-icon>email</mat-icon>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
             Email
           </button>
         </div>
       </form>
 
-      <div *ngIf="error" class="error-message">
-        <mat-icon color="warn">error</mat-icon>
-        {{ error }}
+      <div *ngIf="error" class="error-container">
+        <div class="error-icon">⚠️</div>
+        <p>{{ error }}</p>
       </div>
 
-      <div *ngIf="pdfUrl" class="pdf-preview">
-        <iframe 
-          [src]="pdfUrl" 
-          width="100%" 
-          height="600px"
-          style="border: none;">
-          Your browser does not support PDF preview.
-        </iframe>
+      <div *ngIf="successMessage" class="success-container">
+        <div class="success-icon">✅</div>
+        <p>{{ successMessage }}</p>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
+
+  <!-- Recent Payslips Section -->
+  <div class="recent-payslips-section">
+    <div class="section-header">
+      <h2>Recent Payslips</h2>
+      <p>Quick access to your recent salary slips</p>
+    </div>
+
+    <div class="payslips-grid">
+      <div *ngFor="let payslip of recentPayslips" class="payslip-card" (click)="downloadRecentPayslip(payslip)">
+        <div class="payslip-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14,2 14,8 20,8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10,9 9,9 8,9"></polyline>
+          </svg>
+        </div>
+        <div class="payslip-info">
+          <h4>{{ payslip.month }} {{ payslip.year }}</h4>
+          <p>${{ payslip.amount | number:'1.0-0' }} Net Pay</p>
+          <span class="payslip-date">Generated: {{ payslip.generatedDate }}</span>
+        </div>
+        <div class="download-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+            <polyline points="7,10 12,15 17,10"></polyline>
+            <line x1="12" y1="15" x2="12" y2="3"></line>
+          </svg>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- PDF Preview -->
+  <div *ngIf="pdfUrl" class="pdf-preview-section">
+    <div class="section-header">
+      <h2>Payslip Preview</h2>
+      <button class="close-preview" (click)="closePdfPreview()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div class="pdf-container">
+      <iframe 
+        [src]="pdfUrl" 
+        width="100%" 
+        height="600px"
+        style="border: none; border-radius: 8px;">
+        Your browser does not support PDF preview.
+      </iframe>
+    </div>
+  </div>
 </div>
