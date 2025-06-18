@@ -1,0 +1,124 @@
+
+ <div class="dashboard-container">
+    <!-- Search by Billing Doc or Customer -->
+     <h2>Aging Calculations</h2>
+     <div class="filter-section">
+    <mat-form-field appearance="outline" floatLabel="always" class="search-field">
+      <mat-label>Search Documents</mat-label>
+      <input matInput [(ngModel)]="searchText" (input)="applyFilters()" 
+             placeholder="Billing doc or customer">
+      <mat-icon matSuffix>search</mat-icon>
+      <button matSuffix mat-icon-button aria-label="Clear" 
+              (click)="searchText = ''; applyFilters()" *ngIf="searchText">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+    </div>
+
+    <!-- Status Filter -->
+     
+    <div class="row-filters">
+    <mat-form-field appearance="outline" floatLabel="always">
+      <mat-label>Payment Status</mat-label>
+      <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All Statuses</mat-option>
+        <mat-option *ngFor="let status of paymentStatuses" [value]="status">
+          {{ status }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Currency Filter -->
+    <mat-form-field appearance="outline" floatLabel="always">
+      <mat-label>Currency</mat-label>
+      <mat-select [(ngModel)]="currencyFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All Currencies</mat-option>
+        <mat-option *ngFor="let currency of currencies" [value]="currency">
+          {{ currency }}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Aging Bucket Filter -->
+    <mat-form-field appearance="outline" floatLabel="always">
+      <mat-label>Aging Period</mat-label>
+      <mat-select [(ngModel)]="agingBucketFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All Periods</mat-option>
+        <mat-option value="current">Current (Not Due)</mat-option>
+        <mat-option value="1-30">1-30 Days</mat-option>
+        <mat-option value="31-60">31-60 Days</mat-option>
+        <mat-option value="61-90">61-90 Days</mat-option>
+        <mat-option value="90+">Over 90 Days</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <!-- Clear Filters Button -->
+    <button mat-stroked-button color="warn" (click)="clearFilters()" class="clear-filters">
+      <mat-icon>filter_alt_off</mat-icon>
+      Reset Filters
+    </button>
+    </div>
+ 
+    <!-- Billing Doc Column -->
+    <div class="table-container">
+     <table mat-table [dataSource]="filteredAgings" matSort (matSortChange)="sortData($event)" class="mat-elevation-z8">
+
+    <ng-container matColumnDef="billingDoc">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Doc</th>
+      <td mat-cell *matCellDef="let element">{{ element.billingDoc }}</td>
+    </ng-container>
+
+    <!-- Due Date Column -->
+    <ng-container matColumnDef="dueDate">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Due Date</th>
+      <td mat-cell *matCellDef="let element">{{ formatDate(element.dueDate) }}</td>
+    </ng-container>
+
+    <!-- Net Value Column -->
+    <ng-container matColumnDef="netValue">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Net Value</th>
+      <td mat-cell *matCellDef="let element">{{ formatAmount(element.netValue, element.currency) }}</td>
+    </ng-container>
+
+    <!-- Currency Column -->
+    <ng-container matColumnDef="currency">
+      <th mat-header-cell *matHeaderCellDef>Currency</th>
+      <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+    </ng-container>
+
+    <!-- Payment Status Column -->
+    <ng-container matColumnDef="paymentStatus">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Status</th>
+      <td mat-cell *matCellDef="let element">
+        <mat-icon [ngClass]="getPaymentStatusClass(element.paymentStatus, element.aging)">
+          {{ getPaymentStatusIcon(element.paymentStatus, element.aging) }}
+        </mat-icon>
+        {{ getPaymentStatusText(element.paymentStatus, element.aging) }}
+      </td>
+    </ng-container>
+
+    <!-- Aging Column -->
+    <ng-container matColumnDef="aging">
+      <th mat-header-cell *matHeaderCellDef mat-sort-header>Aging</th>
+      <td mat-cell *matCellDef="let element">{{ element.aging }} days</td>
+    </ng-container>
+
+    <!-- Actions Column -->
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let element">
+        <button mat-icon-button (click)="viewDetails(element.billingDoc)" matTooltip="View Details">
+          <mat-icon>visibility</mat-icon>
+        </button>
+      </td>
+    </ng-container>
+    <!-- Header and Row Declarations -->
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  
+  </table>
+ 
+
+    <mat-spinner *ngIf="isLoading" style="margin: auto;"></mat-spinner>
+ </div>
+ </div>

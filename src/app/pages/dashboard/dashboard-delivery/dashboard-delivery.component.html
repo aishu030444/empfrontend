@@ -1,0 +1,149 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h2>Deliveries Dashboard</h2>
+    <button mat-raised-button color="primary" (click)="clearFilters()" 
+            [disabled]="!searchText  && !currencyFilter && !dateRangeFilter.start && !dateRangeFilter.end">
+      Clear Filters
+    </button>
+  </div>
+  <div class="filter-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" (input)="applyFilters()" 
+             placeholder="Search by delivery # or description">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+    <div class="row-filters">
+      <mat-form-field appearance="outline">
+        <mat-label>Delivery Type </mat-label>
+        <mat-select [(ngModel)]="deliveryTypeFilter" (selectionChange)="applyFilters()">
+          <mat-option value="">All Types</mat-option>
+          <mat-option *ngFor="let type of deliveryTypes" [value]="type">{{type}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+      <mat-form-field appearance="outline">
+        <mat-label>Delivery Status</mat-label>
+        <mat-select [(ngModel)]="statusFilter" (selectionChange)="applyFilters()">
+          <mat-option value="">All Status</mat-option>
+          <mat-option *ngFor="let type of statusOptions" [value]="type">{{type}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>Currency</mat-label>
+        <mat-select [(ngModel)]="currencyFilter" (selectionChange)="applyFilters()">
+          <mat-option value="">All Currencies</mat-option>
+          <mat-option *ngFor="let curr of currencies" [value]="curr">{{curr}}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>Inquiry Date Range</mat-label>
+        <mat-date-range-input [rangePicker]="picker">
+          <input matStartDate [(ngModel)]="dateRangeFilter.start" 
+                 (dateChange)="applyFilters()" placeholder="Start date">
+          <input matEndDate [(ngModel)]="dateRangeFilter.end" 
+                 (dateChange)="applyFilters()" placeholder="End date">
+        </mat-date-range-input>
+        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+        <mat-date-range-picker #picker></mat-date-range-picker>
+      </mat-form-field>
+    
+  </div>
+
+  <div class="table-container">
+    <mat-spinner *ngIf="isLoading" diameter="50" class="spinner"></mat-spinner>
+    
+    <div *ngIf="error" class="error-message">
+      <mat-icon>error_outline</mat-icon>
+      {{ error }}
+    </div>
+<table mat-table [dataSource]="paginatedDeliveries" matSort>
+  <!-- Delivery Number -->
+  <ng-container matColumnDef="deliveryNumber">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Delivery #</th>
+    <td mat-cell *matCellDef="let element">{{ element.deliveryNumber }}</td>
+  </ng-container>
+
+  <!-- Item Number -->
+  <ng-container matColumnDef="itemNumber">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Item #</th>
+    <td mat-cell *matCellDef="let element">{{ element.itemNumber }}</td>
+  </ng-container>
+
+  <!-- Material Number -->
+  <ng-container matColumnDef="materialNumber">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Material #</th>
+    <td mat-cell *matCellDef="let element">{{ element.materialNumber }}</td>
+  </ng-container>
+
+  <!-- Delivery Type -->
+  <ng-container matColumnDef="deliveryType">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Type</th>
+    <td mat-cell *matCellDef="let element">{{ element.deliveryType }}</td>
+  </ng-container>
+
+  <!-- Delivery Date -->
+  <ng-container matColumnDef="deliveryDate">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Delivery Date</th>
+    <td mat-cell *matCellDef="let element">{{ formatDate(element.deliveryDate) }}</td>
+  </ng-container>
+
+  <!-- Delivery Quantity -->
+  <ng-container matColumnDef="deliveryQty">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Quantity</th>
+    <td mat-cell *matCellDef="let element">{{ element.deliveryQty }}</td>
+  </ng-container>
+
+  <!-- Sales Unit -->
+  <ng-container matColumnDef="salesUnit">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Unit</th>
+    <td mat-cell *matCellDef="let element">{{ element.salesUnit }}</td>
+  </ng-container>
+
+  <!-- Net Value -->
+  <ng-container matColumnDef="netValue">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Net Value</th>
+    <td mat-cell *matCellDef="let element">{{ formatCurrency(element.netValue, element.currency) }}</td>
+  </ng-container>
+
+  <!-- Currency -->
+  <ng-container matColumnDef="currency">
+    <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+    <td mat-cell *matCellDef="let element">{{ element.currency }}</td>
+  </ng-container>
+
+  <!-- Status -->
+  <ng-container matColumnDef="status">
+  <th mat-header-cell *matHeaderCellDef> Status </th>
+  <td mat-cell *matCellDef="let element">
+    <span [class]="getStatusClass(element.status)">
+      {{ getStatusText(element.status) }}
+    </span>
+  </td>
+</ng-container>
+
+  <!-- Actions -->
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef>Actions</th>
+    <td mat-cell *matCellDef="let element">
+      <button mat-icon-button (click)="viewDetails(element.deliveryNumber, element.itemNumber)">
+        <mat-icon>visibility</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+  
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>
+  
+<div>{{ getDisplayRange() }}</div>
+<mat-paginator
+  [length]="filteredDeliveries.length"
+  [pageSize]="itemsPerPage"
+  [pageSizeOptions]="[5, 10, 25, 50]"
+  (page)="onPageChange($event)">
+</mat-paginator>
+</div>
+

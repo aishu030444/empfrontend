@@ -1,0 +1,360 @@
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Employee Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: 'Roboto', sans-serif;
+      background: linear-gradient(135deg, #eef2f5 0%, #e6eaef 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow-x: hidden;
+      padding: 20px;
+    }
+    
+    .login-container {
+      width: 100%;
+      max-width: 420px;
+      padding: 15px;
+    }
+    
+    .login-card {
+      background: #ffffff;
+      border-radius: 6px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+      animation: cardEntrance 0.6s ease-out forwards;
+      position: relative;
+    }
+    
+    .login-header {
+      background: #0063b2;
+      padding: 25px 20px;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .login-header::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+      animation: headerGlow 8s ease-in-out infinite;
+    }
+    
+    .logo-placeholder {
+      width: 70px;
+      height: 70px;
+      background: #fff;
+      border-radius: 50%;
+      margin: 0 auto 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+      position: relative;
+      animation: logoFloat 6s ease-in-out infinite;
+    }
+    
+    .logo-placeholder svg {
+      width: 40px;
+      height: 40px;
+    }
+    
+    .login-header h2 {
+      color: white;
+      font-weight: 500;
+      margin-bottom: 5px;
+      font-size: 20px;
+      letter-spacing: 0.3px;
+    }
+    
+    .login-header p {
+      color: rgba(255, 255, 255, 0.9);
+      font-size: 14px;
+      font-weight: 300;
+    }
+    
+    .login-form {
+      padding: 25px 25px 20px;
+      position: relative;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+      position: relative;
+    }
+    
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    .form-group input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 14px;
+      transition: all 0.2s;
+      background: #fff;
+      color: #333;
+      font-family: 'Roboto', sans-serif;
+    }
+    
+    .form-group input:focus {
+      border-color: #0063b2;
+      box-shadow: 0 0 0 2px rgba(0, 99, 178, 0.1);
+      outline: none;
+    }
+    
+    .form-group input::placeholder {
+      color: #999;
+    }
+    
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    
+    .remember-me {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+    
+    .remember-me input {
+      margin-right: 8px;
+      accent-color: #0063b2;
+    }
+    
+    .remember-me span {
+      font-size: 14px;
+      color: #555;
+    }
+    
+    .login-button {
+      width: 100%;
+      padding: 10px 12px;
+      background: #0063b2;
+      color: white;
+      border: none;
+      border-radius: 4px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: 'Roboto', sans-serif;
+      font-size: 15px;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    .login-button:hover {
+      background: #0056a4;
+    }
+    
+    .login-button:active {
+      transform: translateY(1px);
+    }
+    
+    .login-button::after {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 5px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.5);
+      opacity: 0;
+      border-radius: 100%;
+      transform: scale(1, 1) translate(-50%);
+      transform-origin: 50% 50%;
+    }
+    
+    .login-button:focus:not(:active)::after {
+      animation: ripple 0.8s ease-out;
+    }
+    
+    .spinner {
+      display: inline-block;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255,255,255,.3);
+      border-radius: 50%;
+      border-top-color: #fff;
+      animation: spin 0.8s linear infinite;
+    }
+    
+    .error-message {
+      background-color: #fef2f2;
+      color: #dc2626;
+      padding: 10px;
+      border-radius: 4px;
+      margin-top: 15px;
+      font-size: 14px;
+      text-align: center;
+      animation: shake 0.5s cubic-bezier(.36,.07,.19,.97) both;
+      border-left: 3px solid #dc2626;
+    }
+    
+    .login-footer {
+      text-align: center;
+      padding: 15px;
+      background: #f9fafb;
+      color: #666;
+      font-size: 13px;
+      border-top: 1px solid #eee;
+    }
+    
+    .accent-bar {
+      height: 3px;
+      background: #0063b2;
+      width: 100%;
+    }
+    
+    @keyframes cardEntrance {
+      from {
+        opacity: 0;
+        transform: translateY(20px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes headerGlow {
+      0% {
+        opacity: 0.5;
+      }
+      50% {
+        opacity: 1;
+      }
+      100% {
+        opacity: 0.5;
+      }
+    }
+    
+    @keyframes logoFloat {
+      0% {
+        transform: translateY(0);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+      100% {
+        transform: translateY(0);
+      }
+    }
+    
+    @keyframes ripple {
+      0% {
+        transform: scale(0, 0);
+        opacity: 1;
+      }
+      20% {
+        transform: scale(20, 20);
+        opacity: 1;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(30, 30);
+      }
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    @keyframes shake {
+      10%, 90% { transform: translate3d(-1px, 0, 0); }
+      20%, 80% { transform: translate3d(2px, 0, 0); }
+      30%, 50%, 70% { transform: translate3d(-2px, 0, 0); }
+      40%, 60% { transform: translate3d(2px, 0, 0); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="accent-bar"></div>
+      
+      <div class="login-header">
+        <div class="logo-placeholder">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0063b2" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+          </svg>
+        </div>
+        <h2>Employee Portal</h2>
+        <p>Sign in with your SAP credentials</p>
+      </div>
+
+      <form (ngSubmit)="login()" class="login-form">
+      <div class="form-group">
+        <label for="empno">Employee Number</label>
+        <input 
+          type="text" 
+          id="empno" 
+          name="empno" 
+          [(ngModel)]="empno" 
+          placeholder="Enter your SAP employee number"
+          required>
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input 
+          type="password" 
+          id="password" 
+          name="password" 
+          [(ngModel)]="password" 
+          placeholder="Enter your SAP password"
+          required>
+      </div>
+
+      <div class="form-options">
+        <label class="remember-me">
+          <input type="checkbox" [(ngModel)]="rememberMe" name="rememberMe">
+          <span>Remember me</span>
+        </label>
+      </div>
+
+      <button type="submit" class="login-button" [disabled]="isLoading">
+        <span *ngIf="!isLoading">Sign In</span>
+        <span *ngIf="isLoading" class="spinner"></span>
+      </button>
+
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+    </form>
+
+      <div class="login-footer">
+        <p>For SAP login issues, contact IT support</p>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

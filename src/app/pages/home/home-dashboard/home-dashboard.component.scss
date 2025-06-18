@@ -1,0 +1,52 @@
+.dashboard-container {
+  padding: 2rem;
+  text-align: center;
+
+  .title {
+    margin-bottom: 2rem;
+    font-size: 2rem;
+    font-weight: bold;
+    color: #2d2d2d;
+  }
+
+  .card-container {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 2rem;
+  }
+
+  .dashboard-card {
+    background-color: #ffffff;
+    width: 300px;
+    padding: 1.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    cursor: pointer;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    text-align: center;
+
+    &:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+    }
+
+    .card-image {
+      width: 300px;
+      height: 300px;
+      margin-bottom: 1rem;
+      object-fit: contain;
+    }
+
+    h3 {
+      font-size: 1.4rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+
+    p {
+      color: #555;
+      font-size: 1rem;
+    }
+  }
+}

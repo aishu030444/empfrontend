@@ -1,0 +1,34 @@
+
+.app-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+
+.main-content {
+  height: 100%;
+  flex: 1; /* Takes remaining space */
+  padding: 20px;
+  margin-left: 0px; /* Matches sidebar width */
+  background-color: #f5f7fa; /* Your background color */
+}
+
+.content-wrapper {
+  max-width: 4000px; /* Optional max width */
+  margin: 0 auto; /* Centers content */
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .app-container {
+    flex-direction: column;
+  }
+  
+ 
+  
+  .main-content {
+    width: 100%;
+    margin-left: 0;
+    padding: 15px;
+  }
+}

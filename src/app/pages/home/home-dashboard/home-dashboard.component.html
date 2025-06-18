@@ -1,0 +1,26 @@
+<div class="dashboard-container">
+  <h2 class="title">Welcome to Employee Dashboard</h2>
+
+  <div class="card-container">
+    <!-- Leave Request Card -->
+    <div class="dashboard-card" (click)="navigateTo('home/leave')">
+      <img src="assets/leave.jpeg" alt="Leave Request" class="card-image" />
+      <h3>Leave Request</h3>
+      <p>Apply for leave or view your past requests</p>
+    </div>
+
+    <!-- Payment Slip Card -->
+    <div class="dashboard-card" (click)="navigateTo('home/payment')">
+      <img src="assets/Designer.jpeg" alt="Payment Slip" class="card-image" />
+      <h3>Payment Slip</h3>
+      <p>Download and view your monthly salary slips</p>
+    </div>
+
+    <!-- Profile Card -->
+    <div class="dashboard-card" (click)="navigateTo('home/profile')">
+      <img src="assets/profile.jpeg" alt="Profile" class="card-image" />
+      <h3>Profile</h3>
+      <p>View your personal and work information</p>
+    </div>
+  </div>
+</div>

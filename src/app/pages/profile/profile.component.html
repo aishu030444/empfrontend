@@ -1,0 +1,76 @@
+<div class="profile-container">
+  <h2 class="page-title">Employee Profile</h2>
+
+  <div class="employee-profile-wrapper">
+    <ng-container *ngIf="employeeProfile; else loadingOrError">
+      <div class="profile-card">
+        <div class="profile-header">
+          <img
+            [src]="getGenderAvatar(employeeProfile.GESCH)"
+            alt="Profile"
+            class="avatar"
+          />
+
+          <div class="profile-summary">
+            <h3 class="name">{{ employeeProfile.ENAME }}</h3>
+            <div class="meta-info">
+              <span>Employee ID: {{ employeeProfile.PERNR }}</span>
+              <span
+                class="status"
+                [ngClass]="{
+                  'active': employeeProfile.PERSG === '1',
+                  'inactive': employeeProfile.PERSG !== '1'
+                }"
+              >
+                {{ employeeProfile.PERSG === '1' ? 'Active' : 'Inactive' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-sections">
+          <section class="section">
+            <h4>📝 Personal Information</h4>
+            <div class="info-row"><strong>Full Name:</strong> {{ employeeProfile.VORNA }} {{ employeeProfile.NACHN }}</div>
+            <div class="info-row"><strong>Gender:</strong> {{ formatGender(employeeProfile.GESCH) }}</div>
+            <div class="info-row"><strong>Date of Birth:</strong> {{ formatDate(employeeProfile.GBDAT) }}</div>
+            <div class="info-row"><strong>Nationality:</strong> {{ employeeProfile.NATIO }}</div>
+            <div class="info-row"><strong>Language:</strong> {{ employeeProfile.SPRSL }}</div>
+          </section>
+
+          <section class="section">
+            <h4>💼 Employment Details</h4>
+            <div class="info-row"><strong>Employee Group:</strong> {{ employeeProfile.PERSG }}</div>
+            <div class="info-row"><strong>Employee Subgroup:</strong> {{ employeeProfile.PERSK }}</div>
+            <div class="info-row"><strong>Position:</strong> {{ employeeProfile.STELL }}</div>
+            <div class="info-row"><strong>Organizational Unit:</strong> {{ employeeProfile.ORGEH }}</div>
+            <div class="info-row"><strong>Start Date:</strong> {{ formatDate(employeeProfile.BEGDA) }}</div>
+          </section>
+
+          <section class="section">
+            <h4>📍 Contact Information</h4>
+            <div class="info-row"><strong>Location:</strong> {{ employeeProfile.LOCAT }}</div>
+            <div class="info-row"><strong>City:</strong> {{ employeeProfile.ORT01 }}</div>
+            <div class="info-row"><strong>Postal Code:</strong> {{ employeeProfile.PSTLZ }}</div>
+            <div class="info-row"><strong>Country:</strong> {{ employeeProfile.LAND1 }}</div>
+          </section>
+
+          <section class="section">
+            <h4>🔐 System Information</h4>
+            <div class="info-row"><strong>User Type:</strong> {{ employeeProfile.USRTY }}</div>
+            <div class="info-row"><strong>User ID:</strong> {{ employeeProfile.USRID_LONG }}</div>
+          </section>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- Loading/Error Template -->
+    <ng-template #loadingOrError>
+      <div *ngIf="isLoading" class="status-message">
+        <mat-spinner diameter="40"></mat-spinner>
+        Loading employee profile...
+      </div>
+      <div *ngIf="error" class="error-message">{{ error }}</div>
+    </ng-template>
+  </div>
+</div>

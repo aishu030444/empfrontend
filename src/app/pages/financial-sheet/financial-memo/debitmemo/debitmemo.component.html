@@ -1,0 +1,174 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h2>Credit Memos</h2>
+    <button mat-raised-button color="primary" (click)="clearFilters()">
+      <mat-icon>refresh</mat-icon> Reset Filters
+    </button>
+  </div>
+
+  <!-- Filters Section -->
+  <div class="filters-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" (input)="applyFilters()" 
+             placeholder="Search by billing doc or material">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Document Type</mat-label>
+      <mat-select [(ngModel)]="docTypeFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let type of docTypes" [value]="type">
+          {{type}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Sales Org</mat-label>
+      <mat-select [(ngModel)]="salesOrgFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let org of salesOrgs" [value]="org">
+          {{org}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <mat-form-field appearance="outline">
+      <mat-label>Currency</mat-label>
+      <mat-select [(ngModel)]="currencyFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let currency of currencies" [value]="currency">
+          {{currency}}
+        </mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <div class="date-range-filter">
+      <mat-form-field appearance="outline">
+        <mat-label>Start Date</mat-label>
+        <input matInput [matDatepicker]="startPicker" [(ngModel)]="dateRangeFilter.start" 
+               (dateChange)="applyFilters()">
+        <mat-datepicker-toggle matSuffix [for]="startPicker"></mat-datepicker-toggle>
+        <mat-datepicker #startPicker></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline">
+        <mat-label>End Date</mat-label>
+        <input matInput [matDatepicker]="endPicker" [(ngModel)]="dateRangeFilter.end" 
+               (dateChange)="applyFilters()">
+        <mat-datepicker-toggle matSuffix [for]="endPicker"></mat-datepicker-toggle>
+        <mat-datepicker #endPicker></mat-datepicker>
+      </mat-form-field>
+    </div>
+  </div>
+
+  <!-- Loading Indicator -->
+  <div *ngIf="isLoading" class="loading-indicator">
+    <mat-spinner diameter="50"></mat-spinner>
+    <span>Loading credit memos...</span>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="error && !isLoading" class="error-message">
+    <mat-icon color="warn">error</mat-icon>
+    {{error}}
+  </div>
+
+  <!-- Data Table -->
+  <div *ngIf="!isLoading && !error" class="table-container">
+    <mat-table [dataSource]="paginatedCreditMemos" matSort (matSortChange)="sortData($event)">
+      
+      <!-- Column Definitions -->
+      <ng-container matColumnDef="billingDoc">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Doc</th>
+        <td mat-cell *matCellDef="let memo">{{memo.billingDoc}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="docType">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Doc Type</th>
+        <td mat-cell *matCellDef="let memo">{{memo.docType}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="billingDate">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Billing Date</th>
+        <td mat-cell *matCellDef="let memo">{{formatDate(memo.billingDate)}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="materialNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Material</th>
+        <td mat-cell *matCellDef="let memo">{{memo.materialNo}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="itemNo">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Item</th>
+        <td mat-cell *matCellDef="let memo">{{memo.itemNo}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="netValue">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Net Value</th>
+        <td mat-cell *matCellDef="let memo">{{formatCurrency(memo.netValue, memo.currency)}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="currency">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Currency</th>
+        <td mat-cell *matCellDef="let memo">{{memo.currency}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="salesOrg">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Sales Org</th>
+        <td mat-cell *matCellDef="let memo">{{memo.salesOrg}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="customer">
+        <th mat-header-cell *matHeaderCellDef mat-sort-header>Customer</th>
+        <td mat-cell *matCellDef="let memo">{{memo.customer}}</td>
+      </ng-container>
+
+      <ng-container matColumnDef="actions">
+        <th mat-header-cell *matHeaderCellDef>Actions</th>
+        <td mat-cell *matCellDef="let memo">
+          <button mat-icon-button color="primary" 
+                  (click)="viewDetails(memo.billingDoc, memo.itemNo)"
+                  matTooltip="View Details">
+            <mat-icon>visibility</mat-icon>
+          </button>
+        </td>
+      </ng-container>
+
+      <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+      <tr mat-row *matRowDef="let row; columns: displayedColumns;"
+          [class.highlight-row]="hoveredRow === row.billingDoc"
+          (mouseenter)="hoveredRow = row.billingDoc"
+          (mouseleave)="hoveredRow = null"></tr>
+    </mat-table>
+
+    <!-- Pagination Controls -->
+    <div class="pagination-controls">
+      <mat-form-field>
+        <mat-label>Items per page</mat-label>
+        <mat-select [(value)]="itemsPerPage" (selectionChange)="onItemsPerPageChange()">
+          <mat-option value="5">5</mat-option>
+          <mat-option value="10">10</mat-option>
+          <mat-option value="20">20</mat-option>
+          <mat-option value="50">50</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <span>{{ getDisplayRange() }}</span>
+
+      <button mat-button (click)="goToPage(1)" [disabled]="currentPage === 1">First</button>
+      <button mat-button (click)="goToPage(currentPage - 1)" [disabled]="currentPage === 1">Previous</button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button mat-button (click)="goToPage(currentPage + 1)" [disabled]="currentPage === totalPages">Next</button>
+      <button mat-button (click)="goToPage(totalPages)" [disabled]="currentPage === totalPages">Last</button>
+    </div>
+
+    <!-- Empty State -->
+    <div *ngIf="filteredCreditMemos.length === 0" class="empty-state">
+      <mat-icon>info</mat-icon>
+      <p>No credit memos found matching your criteria</p>
+    </div>
+  </div>
+</div>

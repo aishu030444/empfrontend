@@ -1,0 +1,126 @@
+<div class="dashboard-container">
+  <div class="header">
+    <h2>SalesOrder Dashboard</h2>
+    <button mat-raised-button color="primary" (click)="clearFilters()" 
+            [disabled]="!searchText && !documentTypeFilter  && !currencyFilter && !dateRangeFilter.start && !dateRangeFilter.end">
+      Clear Filters
+    </button>
+  </div>
+
+  <!-- Error message -->
+  <mat-error *ngIf="error">{{ error }}</mat-error>
+
+  <!-- Filters -->
+  <div class="filter-section">
+    <mat-form-field appearance="outline" class="search-field">
+      <mat-label>Search</mat-label>
+      <input matInput [(ngModel)]="searchText" (input)="applyFilters()" 
+             placeholder="Search by salesOrderNumber or description">
+      <mat-icon matSuffix>search</mat-icon>
+    </mat-form-field>
+  <div class="row-filters">
+    <mat-form-field appearance="fill">
+      <mat-label>Document Type</mat-label>
+      <mat-select [(ngModel)]="documentTypeFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let type of documentTypes" [value]="type">{{ type }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+   
+
+    <mat-form-field appearance="fill">
+      <mat-label>Currency</mat-label>
+      <mat-select [(ngModel)]="currencyFilter" (selectionChange)="applyFilters()">
+        <mat-option value="">All</mat-option>
+        <mat-option *ngFor="let curr of currencies" [value]="curr">{{ curr }}</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    
+  </div>
+
+  <!-- Table -->
+  <table mat-table [dataSource]="paginatedSalesOrders" class="mat-elevation-z8">
+    <ng-container matColumnDef="salesOrderNumber">
+      <th mat-header-cell *matHeaderCellDef>SO Number</th>
+      <td mat-cell *matCellDef="let order">{{ order.salesOrderNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="itemNumber">
+      <th mat-header-cell *matHeaderCellDef>Item</th>
+      <td mat-cell *matCellDef="let order">{{ order.itemNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="materialNumber">
+      <th mat-header-cell *matHeaderCellDef>Material</th>
+      <td mat-cell *matCellDef="let order">{{ order.materialNumber }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="documentType">
+      <th mat-header-cell *matHeaderCellDef>Doc Type</th>
+      <td mat-cell *matCellDef="let order">{{ order.documentType }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="orderDate">
+      <th mat-header-cell *matHeaderCellDef>Order Date</th>
+      <td mat-cell *matCellDef="let order">{{ formatDate(order.orderDate) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="orderQuantity">
+      <th mat-header-cell *matHeaderCellDef>Quantity</th>
+      <td mat-cell *matCellDef="let order">{{ order.orderQuantity }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="salesUnit">
+      <th mat-header-cell *matHeaderCellDef>Unit</th>
+      <td mat-cell *matCellDef="let order">{{ order.salesUnit }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="netValue">
+      <th mat-header-cell *matHeaderCellDef>Net Value</th>
+      <td mat-cell *matCellDef="let order">{{ formatCurrency(order.netValue, order.currency) }}</td>
+    </ng-container>
+
+    <ng-container matColumnDef="currency">
+      <th mat-header-cell *matHeaderCellDef>Currency</th>
+      <td mat-cell *matCellDef="let order">{{ order.currency }}</td>
+    </ng-container>
+
+    
+
+    <ng-container matColumnDef="actions">
+      <th mat-header-cell *matHeaderCellDef>Actions</th>
+      <td mat-cell *matCellDef="let order">
+        <button mat-button color="accent" (click)="viewDetails(order.salesOrderNumber, order.itemNumber)">View</button>
+      </td>
+    </ng-container>
+
+    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+  </table>
+
+  <!-- Pagination -->
+  <div class="pagination">
+    <button mat-icon-button (click)="currentPage = 1" [disabled]="currentPage === 1">
+      <mat-icon>first_page</mat-icon>
+    </button>
+    <button mat-icon-button (click)="currentPage = currentPage - 1" [disabled]="currentPage === 1">
+      <mat-icon>chevron_left</mat-icon>
+    </button>
+    <span>{{ getDisplayRange() }}</span>
+    <button mat-icon-button (click)="currentPage = currentPage + 1" [disabled]="currentPage === totalPages">
+      <mat-icon>chevron_right</mat-icon>
+    </button>
+    <button mat-icon-button (click)="currentPage = totalPages" [disabled]="currentPage === totalPages">
+      <mat-icon>last_page</mat-icon>
+    </button>
+  </div>
+</div>
+
+<ng-template #loadingTemplate>
+  <div class="loading">
+    <mat-progress-spinner mode="indeterminate"></mat-progress-spinner>
+    <p>Loading sales orders...</p>
+  </div>
+</ng-template>

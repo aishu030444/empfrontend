@@ -1,0 +1,73 @@
+<div class="invoice-container">
+  <div class="header">
+    <h2>Financial Invoices</h2>
+    <div class="controls">
+      <div class="search-box">
+        <input type="text" [(ngModel)]="searchText" placeholder="Search invoices..." class="search-input">
+        <i class="search-icon">🔍</i>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+    <button (click)="clearError()" class="close-error">×</button>
+  </div>
+
+  <div *ngIf="isLoading" class="loading-overlay">
+    <div class="spinner"></div>
+    <p>Loading data...</p>
+  </div>
+
+  <div class="table-container" *ngIf="INVOICE.length > 0">
+    <table class="invoice-table">
+      <thead>
+        <tr>
+          <th *ngFor="let header of headers; let i = index" 
+              (click)="sort(names[i])" 
+              [class.sorted]="key === names[i]">
+            {{ header }}
+            <span class="sort-icon" *ngIf="key === names[i]">
+              {{ reverse ? '↑' : '↓' }}
+            </span>
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let item of paginatedData">
+          <td>{{ this.customerId }}</td>
+          <td>{{ item.billingDoc }}</td>
+          <td>{{ item.billingDate | date:'mediumDate' }}</td>
+          <td>{{ item.itemNumber }}</td>
+          <td>{{ item.billingtype }}</td>
+          <td>
+  <button (click)="downloadPDF(item.billingDoc, item.itemNumber)" class="download-btn">
+    <i class="download-icon">↓</i> PDF
+  </button>
+</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="pagination" *ngIf="totalPages > 1">
+      <button (click)="currentPage = currentPage - 1" 
+              [disabled]="currentPage === 1"
+              class="page-btn">
+        Previous
+      </button>
+      <span>Page {{ currentPage }} of {{ totalPages }}</span>
+      <button (click)="currentPage = currentPage + 1" 
+              [disabled]="currentPage === totalPages"
+              class="page-btn">
+        Next
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="INVOICE.length === 0 && !isLoading" class="no-data">
+    <p>No invoice data available</p>
+    <button (click)="fetchInvoiceData()" class="refresh-btn">
+      Retry
+    </button>
+  </div>
+</div>
